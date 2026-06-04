@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Acordo Comercial — Affinity</title>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Cormorant+Garamond:wght@500;600;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --plum:        #7B3A6E;
+    --plum-dark:   #5C2952;
+    --plum-deeper: #3D1A38;
+    --gold:        #C9A84C;
+    --gold-light:  #E2C97E;
+    --gold-pale:   #F5EDD8;
+    --surface:     #FAF6F9;
+    --surface2:    #F2EBF0;
+    --white:       #ffffff;
+    --text:        #2D1228;
+    --text-muted:  #8A6085;
+    --border:      #DCC8D8;
+    --success:     #1a9e6b;
+    --danger:      #c0392b;
+    --shadow-lg:   0 8px 48px rgba(91,40,82,0.18);
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: linear-gradient(150deg, var(--plum-deeper) 0%, var(--plum) 55%, var(--plum-dark) 100%);
+    min-height: 100vh;
+    padding: 36px 16px 72px;
+    color: var(--text);
+  }
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: repeating-linear-gradient(45deg, transparent, transparent 40px, rgba(201,168,76,.04) 40px, rgba(201,168,76,.04) 41px);
+    pointer-events: none; z-index: 0;
+  }
+
+  .container { max-width: 860px; margin: 0 auto; position: relative; z-index: 1; }
+
+  /* HEADER */
+  .header { text-align: center; margin-bottom: 40px; }
+  .logo-wrap {
+    display: inline-flex; align-items: center; gap: 14px;
+    background: rgba(255,255,255,.10);
+    border: 1px solid rgba(201,168,76,.35);
+    border-radius: 60px; padding: 12px 28px 12px 16px;
+    margin-bottom: 22px; backdrop-filter: blur(8px);
+  }
+  .logo-icon {
+    width: 44px; height: 44px;
+    background: linear-gradient(135deg, var(--gold), var(--gold-light));
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 12px rgba(201,168,76,.45);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem; font-weight: 700;
+    color: var(--plum-deeper);
+  }
+  .logo-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem; font-weight: 700;
+    color: var(--white); letter-spacing: .5px;
+  }
+  .logo-text span { color: var(--gold-light); }
+  .header h1 {
+    font-family: 'Cormorant Garamond', serif;
+    color: var(--white); font-size: 2.1rem; font-weight: 600;
+    letter-spacing: -.3px; margin-bottom: 10px;
+  }
+  .header p { color: rgba(255,255,255,.58); font-size: .92rem; font-weight: 300; }
+  .gold-line { width: 60px; height: 2px; background: linear-gradient(90deg, var(--gold), var(--gold-light)); border-radius: 2px; margin: 14px auto 0; }
+
+  /* CARD */
+  .card { background: var(--white); border-radius: 20px; box-shadow: var(--shadow-lg); overflow: hidden; margin-bottom: 20px; border: 1px solid rgba(220,200,216,.5); }
+  .card-header {
+    background: linear-gradient(90deg, var(--plum-dark) 0%, var(--plum) 100%);
+    padding: 18px 26px; display: flex; align-items: center; gap: 12px;
+    border-bottom: 2px solid var(--gold);
+  }
+  .ch-icon {
+    width: 34px; height: 34px;
+    background: rgba(201,168,76,.18);
+    border: 1px solid rgba(201,168,76,.35);
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .ch-icon svg { width: 16px; height: 16px; fill: var(--gold); }
+  .card-header h2 { color: var(--white); font-size: .95rem; font-weight: 600; letter-spacing: .4px; }
+  .card-body { padding: 26px; }
+
+  /* GRID */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; }
+  .span-2 { grid-column: span 2; }
+
+  /* FIELD */
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
+  .field label .req { color: var(--gold); margin-left: 3px; }
+  .field input, .field select, .field textarea {
+    border: 1.5px solid var(--border); border-radius: 10px;
+    padding: 11px 14px; font-family: 'DM Sans', sans-serif;
+    font-size: .91rem; color: var(--text); background: var(--surface);
+    transition: border-color .2s, box-shadow .2s, background .2s; outline: none;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    border-color: var(--plum); background: var(--white);
+    box-shadow: 0 0 0 3px rgba(123,58,110,.12);
+  }
+  .field textarea { resize: vertical; min-height: 80px; }
+
+  /* TOGGLE — NÃO RETER */
+  .toggle-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 16px 18px; background: var(--surface);
+    border-radius: 12px; border: 1.5px solid var(--border);
+    transition: border-color .2s, background .2s;
+  }
+  .toggle-row.active { border-color: var(--plum); background: rgba(123,58,110,.04); }
+  .toggle-label-wrap { flex: 1; }
+  .toggle-label-wrap strong { display: block; font-size: .9rem; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+  .toggle-label-wrap span { font-size: .78rem; color: var(--text-muted); line-height: 1.4; }
+  .badge-nao-reter {
+    display: none; margin-top: 6px;
+    background: linear-gradient(90deg, var(--plum-dark), var(--plum));
+    color: white; font-size: .68rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .8px;
+    padding: 3px 10px; border-radius: 20px;
+    width: fit-content;
+  }
+  .toggle { position: relative; width: 48px; height: 26px; cursor: pointer; flex-shrink: 0; }
+  .toggle input { display: none; }
+  .toggle .track { position: absolute; inset: 0; background: #d0bfcc; border-radius: 26px; transition: background .2s; }
+  .toggle input:checked + .track { background: var(--plum); }
+  .toggle .thumb {
+    position: absolute; top: 3px; left: 3px;
+    width: 20px; height: 20px;
+    background: white; border-radius: 50%;
+    transition: left .2s; box-shadow: 0 1px 4px rgba(0,0,0,.2);
+  }
+  .toggle input:checked ~ .thumb { left: 25px; }
+
+
+  /* DIVIDER */
+  .divider { height: 1px; background: var(--border); margin: 22px 0; }
+
+  /* TABLE */
+  .op-table-wrap { border: 1.5px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .op-table { width: 100%; border-collapse: collapse; font-size: .84rem; }
+  .op-table thead tr { background: linear-gradient(90deg, var(--plum-dark) 0%, var(--plum) 100%); }
+  .op-table thead th {
+    padding: 10px 10px; color: rgba(255,255,255,.85); font-weight: 700;
+    font-size: .70rem; text-transform: uppercase; letter-spacing: .8px;
+    text-align: left; white-space: nowrap; border-bottom: 2px solid var(--gold);
+  }
+  .op-table tbody tr { border-bottom: 1px solid var(--border); }
+  .op-table tbody tr:last-child { border-bottom: none; }
+  .op-table tbody tr:nth-child(even) { background: var(--surface); }
+  .op-table tbody td { padding: 7px 8px; vertical-align: middle; }
+  .op-table tbody td input {
+    border: 1.5px solid var(--border); border-radius: 7px;
+    padding: 5px 7px; font-size: .82rem; width: 100%;
+    background: var(--white); color: var(--text); outline: none;
+    font-family: 'DM Sans', sans-serif;
+    transition: border-color .15s, box-shadow .15s; text-align: center;
+  }
+  .op-table tbody td input:focus { border-color: var(--plum); box-shadow: 0 0 0 2px rgba(123,58,110,.12); }
+  .op-name input { text-align: left !important; }
+
+  /* total auto-calculado */
+  .td-total { background: rgba(201,168,76,.06); }
+  .input-total {
+    background: linear-gradient(135deg, #f9f2e8, #fdf7ed) !important;
+    border-color: rgba(201,168,76,.5) !important;
+    color: var(--plum-dark) !important;
+    font-weight: 700 !important;
+    cursor: default !important;
+  }
+  .input-total.total-calculado {
+    background: linear-gradient(135deg, #f0e6c8, #f9f0d8) !important;
+    border-color: var(--gold) !important;
+    color: var(--plum-deeper) !important;
+    box-shadow: 0 0 0 2px rgba(201,168,76,.18) !important;
+  }
+  .input-total::placeholder { color: #c8a86a; font-weight: 400; font-size:.78rem; }
+
+  /* 1ª parcela — sempre 100%, destaque leve */
+  .p1-input {
+    background: rgba(123,58,110,.06) !important;
+    border-color: rgba(123,58,110,.3) !important;
+    color: var(--plum-dark) !important;
+    font-weight: 600 !important;
+    text-align: center;
+  }
+  .p1-input:focus {
+    border-color: var(--plum) !important;
+    box-shadow: 0 0 0 2px rgba(123,58,110,.12) !important;
+  }
+
+  .btn-add-op {
+    display: inline-flex; align-items: center; gap: 7px; margin-top: 12px;
+    background: none; border: 1.5px dashed var(--plum); border-radius: 9px;
+    padding: 8px 16px; color: var(--plum); font-size: .84rem; font-weight: 600;
+    cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background .15s;
+  }
+  .btn-add-op:hover { background: rgba(123,58,110,.07); }
+  .btn-add-op svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+  .btn-remove {
+    background: none; border: none; cursor: pointer;
+    padding: 4px; border-radius: 6px; color: #c0a8bb;
+    transition: color .15s, background .15s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .btn-remove:hover { color: var(--danger); background: rgba(192,57,43,.07); }
+  .btn-remove svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+  /* SEND */
+  .send-area { text-align: center; margin-top: 32px; }
+  .btn-send {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: linear-gradient(135deg, var(--gold) 0%, #b8922e 100%);
+    color: var(--plum-deeper); border: none; border-radius: 14px;
+    padding: 16px 44px; font-family: 'DM Sans', sans-serif;
+    font-size: 1rem; font-weight: 700; cursor: pointer;
+    box-shadow: 0 4px 22px rgba(201,168,76,.42);
+    transition: transform .15s, box-shadow .15s; letter-spacing: .2px;
+  }
+  .btn-send:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(201,168,76,.48); }
+  .btn-send:active { transform: translateY(0); }
+  .btn-send:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+  .btn-send svg { width: 19px; height: 19px; stroke: currentColor; fill: none; stroke-width: 2.2; }
+  .send-note { margin-top: 11px; font-size: .79rem; color: rgba(255,255,255,.45); }
+  .send-note strong { color: rgba(255,255,255,.65); }
+
+  /* ALERTS */
+  .alert {
+    display: none; border-radius: 13px; padding: 18px 22px;
+    margin-bottom: 20px; font-weight: 600; font-size: .93rem;
+    align-items: center; gap: 10px;
+  }
+  .alert.success { background: #e6f9f2; border: 1.5px solid #a3dfc8; color: var(--success); }
+  .alert.error   { background: #fdf0ee; border: 1.5px solid #f0b8b0; color: var(--danger); }
+  .alert svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; flex-shrink: 0; }
+
+  /* PREVIEW */
+  .preview-box { display: none; background: var(--surface2); border: 1.5px solid var(--border); border-radius: 16px; padding: 24px; margin-top: 24px; }
+  .preview-box h3 { font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .preview-box h3 svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
+  .email-body {
+    background: var(--white); border-radius: 10px; padding: 18px;
+    font-size: .82rem; line-height: 1.75; color: var(--text);
+    font-family: 'Courier New', monospace; white-space: pre-wrap;
+    border: 1px solid var(--border); max-height: 380px; overflow-y: auto;
+  }
+  .copy-btn {
+    display: inline-flex; align-items: center; gap: 6px; margin-top: 12px;
+    background: var(--plum); color: white; border: none; border-radius: 8px;
+    padding: 8px 16px; font-family: 'DM Sans', sans-serif;
+    font-size: .82rem; font-weight: 600; cursor: pointer; transition: background .15s;
+  }
+  .copy-btn:hover { background: var(--plum-dark); }
+  .copy-btn svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+  .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid rgba(61,26,56,.3); border-top-color: var(--plum-deeper); border-radius: 50%; animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 680px) {
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    .span-2 { grid-column: span 1; }
+    body { padding: 12px 8px 48px; }
+    .card-body { padding: 16px 12px; }
+    .header h1 { font-size: 1.4rem; }
+    .header p { font-size: .85rem; }
+    .logo-wrap { padding: 10px 18px 10px 12px; }
+    .logo-text { font-size: 1.2rem; }
+
+    /* campos maiores para toque */
+    .field input, .field select, .field textarea {
+      padding: 13px 14px;
+      font-size: 1rem;
+    }
+    .field label { font-size: .75rem; }
+
+    /* tabela de operadoras vira scroll horizontal */
+    .op-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .op-table { min-width: 520px; }
+    .op-table thead th { padding: 8px 7px; font-size: .68rem; }
+    .op-table tbody td { padding: 7px 6px; }
+    .op-table tbody td input { width: 46px; font-size: .78rem; padding: 5px 4px; }
+
+    /* toggle maior para toque */
+    .toggle { width: 52px; height: 28px; }
+    .toggle .thumb { width: 22px; height: 22px; }
+    .toggle input:checked ~ .thumb { left: 27px; }
+
+    /* botão enviar full width */
+    .btn-send { width: 100%; justify-content: center; padding: 16px 20px; font-size: 1rem; }
+    .send-note { font-size: .75rem; }
+
+    /* card header menor */
+    .card-header { padding: 14px 16px; }
+    .card-header h2 { font-size: .88rem; }
+
+    /* btn adicionar operadora */
+    .btn-add-op { width: 100%; justify-content: center; margin-top: 14px; padding: 10px; }
+
+    /* retencao fields */
+    #retencao-fields .grid-3 { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo-wrap">
+      <div class="logo-icon">A</div>
+      <span class="logo-text">Affinity <span>Corretora</span></span>
+    </div>
+    <h1>Cadastro de Acordo Comercial</h1>
+    <p>Preencha os dados do corretor e as comissões por operadora para envio à equipe.</p>
+    <div class="gold-line"></div>
+  </div>
+
+  <!-- ALERTS -->
+  <div class="alert success" id="alert-success">
+    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+    <span>Acordo enviado com sucesso! Um e-mail de confirmação foi enviado para você.</span>
+  </div>
+  <div class="alert error" id="alert-error">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <span id="error-msg">Erro ao enviar. Por favor, tente novamente.</span>
+  </div>
+
+  <!-- DADOS DO SUPERVISOR -->
+  <div class="card">
+    <div class="card-header">
+      <div class="ch-icon">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+      </div>
+      <h2>Dados do Supervisor</h2>
+    </div>
+    <div class="card-body">
+      <div class="grid-2">
+        <div class="field">
+          <label>Nome do Supervisor <span class="req">*</span></label>
+          <input type="text" id="supervisor" placeholder="Ex: João Silva" required>
+        </div>
+        <div class="field">
+          <label>E-mail do Supervisor <span class="req">*</span></label>
+          <input type="email" id="supervisor-email" placeholder="supervisor@affinitycorretora.com.br" required>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DADOS DO CORRETOR -->
+  <div class="card">
+    <div class="card-header">
+      <div class="ch-icon">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/></svg>
+      </div>
+      <h2>Dados do Corretor</h2>
+    </div>
+    <div class="card-body">
+      <div class="grid-3">
+        <div class="field">
+          <label>Código do Corretor <span class="req">*</span></label>
+          <input type="text" id="codigo" placeholder="Ex: 210044" required>
+        </div>
+        <div class="field span-2">
+          <label>Nome do Corretor / Empresa <span class="req">*</span></label>
+          <input type="text" id="nome-corretor" placeholder="Nome completo ou razão social" required>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="field" style="max-width:220px">
+        <label>Data de Início <span class="req">*</span></label>
+        <input type="date" id="data-inicio" required>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- TOGGLE NÃO RETER -->
+      <div class="toggle-row" id="toggle-row-nao-reter">
+        <div class="toggle-label-wrap">
+          <strong>Não reter em nada</strong>
+          <span>Marque se este acordo não possui nenhuma retenção</span>
+          <div class="badge-nao-reter" id="badge-nao-reter">✓ Não reter em nada</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="nao-reter-check" onchange="toggleNaoReter(this)">
+          <span class="track"></span>
+          <span class="thumb"></span>
+        </label>
+      </div>
+
+
+    </div>
+  </div>
+
+  <!-- OPERADORAS -->
+  <div class="card">
+    <div class="card-header">
+      <div class="ch-icon">
+        <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-4 0v2"/></svg>
+      </div>
+      <h2>Operadoras &amp; Comissões</h2>
+    </div>
+    <div class="card-body">
+      <p style="font-size:.83rem;color:var(--text-muted);margin-bottom:16px;">Informe o percentual de comissão por parcela de cada operadora. Deixe em branco as parcelas não aplicáveis.</p>
+      <div class="op-table-wrap">
+        <table class="op-table">
+          <thead>
+            <tr>
+              <th>Operadora</th>
+              <th>Total</th>
+              <th>1ª</th>
+              <th>2ª</th>
+              <th>3ª</th>
+              <th>4ª</th>
+              <th>5ª</th>
+              <th>Demais</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="op-body"></tbody>
+        </table>
+      </div>
+      <button class="btn-add-op" onclick="addOpRow()">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        Adicionar operadora
+      </button>
+    </div>
+  </div>
+
+  <!-- OBSERVAÇÕES -->
+  <div class="card">
+    <div class="card-header">
+      <div class="ch-icon">
+        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      </div>
+      <h2>Observações</h2>
+    </div>
+    <div class="card-body">
+      <div class="field">
+        <label>Observações adicionais</label>
+        <textarea id="obs" placeholder="Ex: Premiação de 10% em cima de toda produção implantada..."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEND -->
+  <div class="send-area">
+    <button class="btn-send" id="btn-send" onclick="enviarAcordo()">
+      <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      Enviar Acordo para Análise
+    </button>
+    <p class="send-note">Enviado para <strong>acordos@affinitycorretora.com.br</strong> + confirmação no seu e-mail</p>
+  </div>
+
+  <!-- PREVIEW -->
+  <div class="preview-box" id="preview-box">
+    <h3>
+      <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      Espelho do acordo enviado
+    </h3>
+    <div class="email-body" id="email-body"></div>
+    <button class="copy-btn" onclick="copiarEmail()">
+      <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+      Copiar texto
+    </button>
+  </div>
+
+</div>
+
+<script>
+// ─── EmailJS ──────────────────────────────────────────────────────────────────
+// Configure em https://www.emailjs.com :
+//  1. Crie um Email Service e anote o Service ID
+//  2. Crie DOIS templates:
+//     • TEMPLATE_ACORDOS  → envia para acordos@affinitycorretora.com.br
+//       variáveis: {{subject}}, {{message}}, {{supervisor}}, {{codigo}}, {{nome_corretor}}
+//     • TEMPLATE_CONFIRM  → envia para o supervisor (confirmação)
+//       variáveis: {{supervisor}}, {{to_email}}, {{subject}}, {{message}}
+//  3. Copie sua Public Key (Account → API Keys)
+const EMAILJS_PUBLIC_KEY   = 'i0baUTbhdjYvFkT9c';
+const EMAILJS_SERVICE_ID   = 'service_gvedztq';
+const EMAILJS_TEMPLATE_ACORDOS = 'template_6rd60l3';   // para a equipe
+const EMAILJS_TEMPLATE_CONFIRM = 'template_v84t5aa';   // confirmação supervisor
+const DESTINO_ACORDOS      = 'acordos@affinitycorretora.com.br';
+// ──────────────────────────────────────────────────────────────────────────────
+
+(function(){ emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY }); })();
+
+const OPERADORAS_PADRAO = [
+  'MEDSÊNIOR','LEVE SAUDE (PF)','LEVE SAUDE (PME)','ALLCARE','KLINI',
+  'PORTO SEGURO','SULAMERICA','AMIL','ASSIM SAÚDE','HAPVIDA','BRADESCO',
+  'UNIMED LESTE FLUMINENSE – ALLCARE PME','BLUE','DIXMED – TODOS'
+];
+
+function calcTotal(tr) {
+  const parcelas   = tr.querySelectorAll('.parcela-input');
+  const totalInput = tr.querySelector('.input-total');
+  let soma = 0;
+  let temValor = false;
+  parcelas.forEach(inp => {
+    const v = parseFloat(inp.value);
+    if (!isNaN(v) && inp.value.trim() !== '') { soma += v; temValor = true; }
+  });
+  if (temValor) {
+    totalInput.value = soma + '%';
+    totalInput.classList.add('total-calculado');
+  } else {
+    totalInput.value = '';
+    totalInput.classList.remove('total-calculado');
+  }
+}
+
+function buildRow(op = '') {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td class="op-name"><input type="text" placeholder="Operadora" value="${op}" style="min-width:140px"></td>
+    <td class="td-total"><input type="text" class="input-total" placeholder="Auto" step="0.1" min="0" style="width:58px" readonly tabindex="-1"></td>
+    <td><input type="number" class="parcela-input" placeholder="—" step="1" min="0" max="100" style="width:52px"></td>
+    <td><input type="number" class="parcela-input" placeholder="—" step="1" min="0" max="100" style="width:52px"></td>
+    <td><input type="number" class="parcela-input" placeholder="—" step="1" min="0" max="100" style="width:52px"></td>
+    <td><input type="number" class="parcela-input" placeholder="—" step="1" min="0" max="100" style="width:52px"></td>
+    <td><input type="number" class="parcela-input" placeholder="—" step="1" min="0" max="100" style="width:52px"></td>
+    <td><input type="text" placeholder="—" style="width:64px;font-size:.76rem;text-align:center"></td>
+    <td>
+      <button class="btn-remove" onclick="this.closest('tr').remove()" title="Remover">
+        <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6M9 6V4h6v2"/></svg>
+      </button>
+    </td>`;
+
+  // ouve mudanças nas parcelas e recalcula o total
+  tr.querySelectorAll('.parcela-input').forEach(inp => {
+    inp.addEventListener('input', () => calcTotal(tr));
+  });
+
+  return tr;
+}
+
+function addOpRow(op = '') {
+  document.getElementById('op-body').appendChild(buildRow(op));
+}
+OPERADORAS_PADRAO.forEach(op => addOpRow(op));
+
+function toggleNaoReter(el) {
+  const row   = document.getElementById('toggle-row-nao-reter');
+  const badge = document.getElementById('badge-nao-reter');
+  row.classList.toggle('active', el.checked);
+  badge.style.display = el.checked ? 'block' : 'none';
+}
+
+
+
+function pad(n) { return n < 10 ? '0' + n : n; }
+function fmtDate(d) {
+  if (!d) return '';
+  const dt = new Date(d + 'T12:00:00');
+  return pad(dt.getDate()) + '/' + pad(dt.getMonth() + 1) + '/' + dt.getFullYear();
+}
+function pe(s, w) { return String(s == null ? '' : s).padEnd(w, ' '); }
+
+function coletarOps() {
+  return [...document.querySelectorAll('#op-body tr')].reduce((acc, r) => {
+    const c = r.querySelectorAll('input');
+    const nome = c[0].value.trim();
+    const ps      = r.querySelectorAll('.parcela-input');
+    const totalEl = r.querySelector('.input-total');
+    const fmtP    = inp => inp && inp.value.trim() !== '' ? inp.value + '%' : '';
+    const demaisEl = r.querySelectorAll('input[type=text]');
+    if (nome) acc.push({
+      nome,
+      total:  totalEl ? totalEl.value : '',
+      p1:     fmtP(ps[0]),
+      p2:     fmtP(ps[1]),
+      p3:     fmtP(ps[2]),
+      p4:     fmtP(ps[3]),
+      p5:     fmtP(ps[4]),
+      demais: demaisEl[1] ? demaisEl[1].value : ''
+    });
+    return acc;
+  }, []);
+}
+
+function buildEmailText() {
+  const supervisor   = document.getElementById('supervisor').value.trim();
+  const codigo       = document.getElementById('codigo').value.trim();
+  const nomeCorretor = document.getElementById('nome-corretor').value.trim();
+  const dataInicio   = document.getElementById('data-inicio').value;
+  const naoReter     = document.getElementById('nao-reter-check').checked;
+  const obs          = document.getElementById('obs').value.trim();
+  const ops          = coletarOps();
+
+  const retBloco = '';
+
+  const cw  = [38, 7, 7, 7, 7, 7, 7, 12];
+  const hdr = ['OPERADORA','TOTAL','1ª','2ª','3ª','4ª','5ª','DEMAIS'];
+  let tbl   = '  ' + hdr.map((h,i) => pe(h, cw[i])).join('') + '\n';
+  tbl      += '  ' + '─'.repeat(cw.reduce((a,b)=>a+b,0)) + '\n';
+  ops.forEach(op => {
+    tbl += '  ' + [op.nome, op.total, op.p1, op.p2, op.p3, op.p4, op.p5||'', op.demais]
+      .map((v,i) => pe(v, cw[i])).join('') + '\n';
+  });
+
+  const dataHora = new Date().toLocaleString('pt-BR');
+
+  return `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SOLICITAÇÃO DE ACORDO COMERCIAL — AFFINITY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+DATA DO ENVIO:  ${dataHora}
+SUPERVISOR:     ${supervisor}
+
+COD. ${codigo}  —  ${nomeCorretor.toUpperCase()}
+${naoReter ? 'NÃO RETER EM NADA' : ''}
+DATA DE INÍCIO: ${fmtDate(dataInicio)}
+${retBloco}
+COMISSÕES POR OPERADORA:
+${tbl}${obs ? '\nOBSERVAÇÕES:\n' + obs + '\n' : ''}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+}
+
+function showAlert(type, msg) {
+  ['success','error'].forEach(t => { document.getElementById('alert-' + t).style.display = 'none'; });
+  if (msg) document.getElementById('error-msg').textContent = msg;
+  const el = document.getElementById('alert-' + type);
+  el.style.display = 'flex';
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function setBtnLoading(loading) {
+  const btn = document.getElementById('btn-send');
+  if (loading) {
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Enviando…';
+  } else {
+    btn.disabled = false;
+    btn.innerHTML = `<svg viewBox="0 0 24 24" style="width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:2.2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Enviar Acordo para Análise`;
+  }
+}
+
+async function enviarAcordo() {
+  const supervisor      = document.getElementById('supervisor').value.trim();
+  const supervisorEmail = document.getElementById('supervisor-email').value.trim();
+  const codigo          = document.getElementById('codigo').value.trim();
+  const nomeCorretor    = document.getElementById('nome-corretor').value.trim();
+  const dataInicio      = document.getElementById('data-inicio').value;
+
+  if (!supervisor || !supervisorEmail || !codigo || !nomeCorretor || !dataInicio) {
+    showAlert('error', 'Preencha todos os campos obrigatórios (marcados com *).');
+    return;
+  }
+  if (!supervisorEmail.includes('@')) {
+    showAlert('error', 'Informe um e-mail válido para o supervisor.');
+    return;
+  }
+  if (coletarOps().length === 0) {
+    showAlert('error', 'Adicione ao menos uma operadora com as comissões.');
+    return;
+  }
+
+  const emailText = buildEmailText();
+  document.getElementById('email-body').textContent = emailText;
+  document.getElementById('preview-box').style.display = 'block';
+
+  setBtnLoading(true);
+
+  const subject = `Novo Acordo — COD. ${codigo} — ${nomeCorretor}`;
+
+  try {
+     const ops = coletarOps();
+     const dataInicioFmt = fmtDate(dataInicio);
+     const naoReterEl = document.getElementById('nao-reter-check');
+     const retencaoEl = document.getElementById('retencao-check');
+     const naoReterVal = naoReterEl ? naoReterEl.checked : false;
+     const retencaoVal = retencaoEl ? retencaoEl.checked : false;
+     const obsVal = document.getElementById('obs').value.trim();
+     const retencaoTexto = naoReterVal ? 'NÃO RETER EM NADA' : retencaoVal ? 'COM RETENÇÃO' : '—';
+
+     let linhasHTML = '';
+     ops.forEach((op, i) => {
+       const bg = i % 2 === 0 ? '#ffffff' : '#FAF6F9';
+       linhasHTML += '<tr style="background:' + bg + '">'
+         + '<td style="padding:8px 10px;border:1px solid #DCC8D8;color:#2D1228;font-size:12px;">' + op.nome + '</td>'
+         + '<td style="padding:8px 6px;border:1px solid #DCC8D8;text-align:center;font-weight:700;color:#7B3A6E;background:#F5EDD8;font-size:12px;">' + (op.total||'—') + '</td>'
+         + '<td style="padding:8px 6px;border:1px solid #DCC8D8;text-align:center;color:#444;font-size:12px;">' + (op.p1||'—') + '</td>'
+         + '<td style="padding:8px 6px;border:1px solid #DCC8D8;text-align:center;color:#444;font-size:12px;">' + (op.p2||'—') + '</td>'
+         + '<td style="padding:8px 6px;border:1px solid #DCC8D8;text-align:center;color:#444;font-size:12px;">' + (op.p3||'—') + '</td>'
+         + '<td style="padding:8px 6px;border:1px solid #DCC8D8;text-align:center;color:#444;font-size:12px;">' + (op.p4||'—') + '</td>'
+         + '<td style="padding:8px 6px;border:1px solid #DCC8D8;text-align:center;color:#444;font-size:12px;">' + (op.p5||'—') + '</td>'
+         + '<td style="padding:8px 6px;border:1px solid #DCC8D8;text-align:center;color:#444;font-size:12px;">' + (op.demais||'—') + '</td>'
+         + '</tr>';
+     });
+
+     const tabelaHTML = '<table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">'
+       + '<tr style="background:#5C2952;">'
+       + '<th style="padding:9px 10px;color:#fff;text-align:left;border:1px solid #7B3A6E;font-size:11px;">Operadora</th>'
+       + '<th style="padding:9px 6px;color:#C9A84C;text-align:center;border:1px solid #7B3A6E;font-size:11px;">Total</th>'
+       + '<th style="padding:9px 6px;color:#fff;text-align:center;border:1px solid #7B3A6E;font-size:11px;">1ª</th>'
+       + '<th style="padding:9px 6px;color:#fff;text-align:center;border:1px solid #7B3A6E;font-size:11px;">2ª</th>'
+       + '<th style="padding:9px 6px;color:#fff;text-align:center;border:1px solid #7B3A6E;font-size:11px;">3ª</th>'
+       + '<th style="padding:9px 6px;color:#fff;text-align:center;border:1px solid #7B3A6E;font-size:11px;">4ª</th>'
+       + '<th style="padding:9px 6px;color:#fff;text-align:center;border:1px solid #7B3A6E;font-size:11px;">5ª</th>'
+       + '<th style="padding:9px 6px;color:#fff;text-align:center;border:1px solid #7B3A6E;font-size:11px;">Demais</th>'
+       + '</tr>'
+       + linhasHTML
+       + '</table>';
+
+     const emailParams = {
+       supervisor,
+       codigo,
+       nome_corretor: nomeCorretor,
+       data_inicio:   dataInicioFmt,
+       retencao:      retencaoTexto,
+       tabela_ops:    tabelaHTML,
+       obs_text:      obsVal || '—',
+     };
+
+     // 1. E-mail para a equipe de acordos
+     try {
+       await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ACORDOS, {
+         to_email: DESTINO_ACORDOS,
+         subject: 'Novo Acordo — COD. ' + codigo + ' — ' + nomeCorretor,
+         ...emailParams,
+       });
+     } catch(e1) {
+       throw new Error('Falha no e-mail da equipe: ' + (e1?.text || e1?.message || JSON.stringify(e1)));
+     }
+
+     // 2. E-mail de confirmação para o supervisor
+     try {
+       await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_CONFIRM, {
+         to_email:  supervisorEmail,
+         subject:   'Acordo Enviado — COD. ' + codigo + ' — ' + nomeCorretor,
+         ...emailParams,
+       });
+     } catch(e2) {
+       throw new Error('Falha no e-mail de confirmação: ' + (e2?.text || e2?.message || JSON.stringify(e2)));
+     }
+
+    showAlert('success');
+  } catch(err) {
+    console.error(err);
+    const errMsg = err?.text || err?.message || JSON.stringify(err) || 'Erro desconhecido';
+    showAlert('error', 'Erro: ' + errMsg + ' — Copie o texto abaixo e envie manualmente.');
+  } finally {
+    setBtnLoading(false);
+    document.getElementById('preview-box').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+function copiarEmail() {
+  navigator.clipboard.writeText(document.getElementById('email-body').textContent).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    const orig = btn.innerHTML;
+    btn.innerHTML = '✓ Copiado!';
+    setTimeout(() => btn.innerHTML = orig, 2000);
+  });
+}
+</script>
+</body>
+</html>
