@@ -395,9 +395,9 @@
       <!-- TOGGLE NÃO RETER -->
       <div class="toggle-row" id="toggle-row-nao-reter">
         <div class="toggle-label-wrap">
-          <strong>Não reter em nada</strong>
-          <span>Marque se este acordo não possui nenhuma retenção</span>
-          <div class="badge-nao-reter" id="badge-nao-reter">✓ Não reter em nada</div>
+          <strong>Sem retenção</strong>
+          <span>Marque se este acordo não possui retenção</span>
+          <div class="badge-nao-reter" id="badge-nao-reter">✓ Sem retenção</div>
         </div>
         <label class="toggle">
           <input type="checkbox" id="nao-reter-check" onchange="toggleNaoReter(this)">
@@ -627,7 +627,7 @@ DATA DO ENVIO:  ${dataHora}
 SUPERVISOR:     ${supervisor}
 
 COD. ${codigo}  —  ${nomeCorretor.toUpperCase()}
-${naoReter ? 'NÃO RETER EM NADA' : ''}
+${naoReter ? 'SEM RETENÇÃO' : ''}
 DATA DE INÍCIO: ${fmtDate(dataInicio)}
 ${retBloco}
 COMISSÕES POR OPERADORA:
@@ -690,7 +690,7 @@ async function enviarAcordo() {
      const naoReterVal = naoReterEl ? naoReterEl.checked : false;
      const retencaoVal = retencaoEl ? retencaoEl.checked : false;
      const obsVal = document.getElementById('obs').value.trim();
-     const retencaoTexto = naoReterVal ? 'NÃO RETER EM NADA' : retencaoVal ? 'COM RETENÇÃO' : '—';
+     const retencaoTexto = naoReterVal ? 'SEM RETENÇÃO' : retencaoVal ? 'COM RETENÇÃO' : '—';
 
      // Filtra apenas operadoras com pelo menos um percentual preenchido
      const opsFiltradas = ops.filter(op =>
