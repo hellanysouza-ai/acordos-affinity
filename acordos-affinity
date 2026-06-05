@@ -692,8 +692,13 @@ async function enviarAcordo() {
      const obsVal = document.getElementById('obs').value.trim();
      const retencaoTexto = naoReterVal ? 'NÃO RETER EM NADA' : retencaoVal ? 'COM RETENÇÃO' : '—';
 
+     // Filtra apenas operadoras com pelo menos um percentual preenchido
+     const opsFiltradas = ops.filter(op =>
+       op.p1 || op.p2 || op.p3 || op.p4 || op.p5 || op.demais
+     );
+
      let linhasHTML = '';
-     ops.forEach((op, i) => {
+     opsFiltradas.forEach((op, i) => {
        const bg = i % 2 === 0 ? '#ffffff' : '#FAF6F9';
        linhasHTML += '<tr style="background:' + bg + '">'
          + '<td style="padding:8px 10px;border:1px solid #DCC8D8;color:#2D1228;font-size:12px;">' + op.nome + '</td>'
