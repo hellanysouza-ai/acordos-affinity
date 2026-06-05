@@ -669,9 +669,19 @@ async function enviarAcordo() {
     showAlert('error', 'Informe um e-mail válido para o supervisor.');
     return;
   }
-  if (coletarOps().length === 0) {
-    showAlert('error', 'Adicione ao menos uma operadora com as comissões.');
+  // Valida se pelo menos uma operadora tem percentual preenchido
+  const opsFilled = coletarOps().filter(op => op.p1 || op.p2 || op.p3 || op.p4 || op.p5 || op.demais);
+  const tableWrap = document.querySelector('.op-table-wrap');
+  if (opsFilled.length === 0) {
+    showAlert('error', 'Preencha as comissões de pelo menos uma operadora antes de enviar.');
+    // Destaca a tabela em vermelho
+    tableWrap.style.border = '2px solid #c0392b';
+    tableWrap.style.borderRadius = '12px';
+    tableWrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
     return;
+  } else {
+    // Remove destaque vermelho se preenchido
+    tableWrap.style.border = '1.5px solid var(--border)';
   }
 
   const emailText = buildEmailText();
