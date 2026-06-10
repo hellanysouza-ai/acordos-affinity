@@ -511,6 +511,7 @@ const OPERADORAS_PADRAO = [
 ];
 
 function calcTotal(tr) {
+  // Soma apenas as colunas de parcelas (1ª a 5ª), excluindo Demais
   const parcelas   = tr.querySelectorAll('.parcela-input');
   const totalInput = tr.querySelector('.input-total');
   let soma = 0;
@@ -538,7 +539,7 @@ function buildRow(op = '') {
     <td><input type="number" class="parcela-input" placeholder="—" step="1" min="0" max="100" style="width:52px"></td>
     <td><input type="number" class="parcela-input" placeholder="—" step="1" min="0" max="100" style="width:52px"></td>
     <td><input type="number" class="parcela-input" placeholder="—" step="1" min="0" max="100" style="width:52px"></td>
-    <td><input type="text" placeholder="—" style="width:64px;font-size:.76rem;text-align:center"></td>
+    <td><input type="text" class="demais-input" placeholder="—" style="width:64px;font-size:.76rem;text-align:center"></td>
     <td>
       <button class="btn-remove" onclick="this.closest('tr').remove()" title="Remover">
         <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6M9 6V4h6v2"/></svg>
