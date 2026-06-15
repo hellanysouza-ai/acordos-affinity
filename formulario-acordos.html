@@ -559,6 +559,13 @@ function addOpRow(op = '') {
 }
 OPERADORAS_PADRAO.forEach(op => addOpRow(op));
 
+// Preenche data de início com a data de hoje
+const hoje = new Date();
+const dd = String(hoje.getDate()).padStart(2, '0');
+const mm = String(hoje.getMonth() + 1).padStart(2, '0');
+const yyyy = hoje.getFullYear();
+document.getElementById('data-inicio').value = yyyy + '-' + mm + '-' + dd;
+
 function toggleNaoReter(el) {
   const row   = document.getElementById('toggle-row-nao-reter');
   const badge = document.getElementById('badge-nao-reter');
