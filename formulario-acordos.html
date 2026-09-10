@@ -290,8 +290,64 @@
     </div>
   </div>
 
-  <!-- OPERADORAS -->
+  <!-- ACORDO PONTUAL -->
   <div class="section">
+    <div class="section-header">Tipo de Acordo</div>
+    <div class="section-body">
+      <div class="toggle-wrap" id="toggle-acordo-pontual">
+        <div class="toggle-info">
+          <strong>Acordo pontual</strong>
+          <span>Válido apenas para uma proposta específica, não para toda a produção</span>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="pontual-check" onchange="togglePontual(this)">
+          <span class="track"></span>
+          <span class="thumb"></span>
+        </label>
+      </div>
+
+      <div id="pontual-fields" style="display:none;margin-top:12px;">
+        <div class="field-row single">
+          <div class="field">
+            <div class="field-label">Nº da Proposta *</div>
+            <input type="text" id="pontual-proposta" placeholder="Ex: 123456">
+          </div>
+        </div>
+
+        <div class="table-scroll" id="pontual-table-scroll" style="margin-top:12px;">
+          <table class="op-table">
+            <thead>
+              <tr>
+                <th style="text-align:left;min-width:130px;">Operadora</th>
+                <th style="color:#C9A84C;">Total</th>
+                <th>1ª</th>
+                <th>2ª</th>
+                <th>3ª</th>
+                <th>4ª</th>
+                <th>5ª</th>
+                <th>Demais</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr id="pontual-op-row">
+                <td class="op-name"><input type="text" id="pontual-operadora" placeholder="Operadora" style="min-width:120px;text-align:left"></td>
+                <td class="td-total"><input type="text" id="pontual-op-total" class="input-total" placeholder="Auto" readonly tabindex="-1" style="width:52px;background:#f5edd8;border-color:rgba(201,168,76,.5);font-weight:700;color:#5C2952;cursor:default;"></td>
+                <td><input type="number" class="parcela-input" id="pontual-p1" placeholder="—" step="1" min="0" max="100" style="width:46px"></td>
+                <td><input type="number" class="parcela-input" id="pontual-p2" placeholder="—" step="1" min="0" max="100" style="width:46px"></td>
+                <td><input type="number" class="parcela-input" id="pontual-p3" placeholder="—" step="1" min="0" max="100" style="width:46px"></td>
+                <td><input type="number" class="parcela-input" id="pontual-p4" placeholder="—" step="1" min="0" max="100" style="width:46px"></td>
+                <td><input type="number" class="parcela-input" id="pontual-p5" placeholder="—" step="1" min="0" max="100" style="width:46px"></td>
+                <td><input type="text" class="demais-input" id="pontual-demais" placeholder="—" style="width:60px;text-align:center"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPERADORAS -->
+  <div class="section" id="operadoras-section">
     <div class="section-header">Comissões por Operadora</div>
     <div class="section-body">
       <p style="font-size:.8rem;color:var(--text-muted);margin-bottom:14px;">Preencha o percentual das operadoras deste acordo. As demais serão ignoradas no envio.</p>
@@ -422,6 +478,16 @@ function toggleNaoReter(el) {
   }
 }
 
+function togglePontual(el) {
+  document.getElementById('toggle-acordo-pontual').classList.toggle('active', el.checked);
+  document.getElementById('pontual-fields').style.display = el.checked ? 'block' : 'none';
+  document.getElementById('operadoras-section').style.display = el.checked ? 'none' : 'block';
+}
+
+document.querySelectorAll('#pontual-op-row .parcela-input').forEach(inp => {
+  inp.addEventListener('input', () => calcTotal(document.getElementById('pontual-op-row')));
+});
+
 
 
 function coletarOps() {
@@ -471,9 +537,28 @@ async function enviarAcordo() {
     return;
   }
 
+  const pontualEl      = document.getElementById('pontual-check');
+  const pontualVal     = pontualEl ? pontualEl.checked : false;
+  const proposta       = document.getElementById('pontual-proposta').value.trim();
+  const opPontualNome  = document.getElementById('pontual-operadora').value.trim();
+  const fmtPPontual    = id => { const v = document.getElementById(id).value; return v.trim() !== '' ? v + '%' : ''; };
+  const pontualDados = {
+    total:  document.getElementById('pontual-op-total').value,
+    p1: fmtPPontual('pontual-p1'), p2: fmtPPontual('pontual-p2'), p3: fmtPPontual('pontual-p3'),
+    p4: fmtPPontual('pontual-p4'), p5: fmtPPontual('pontual-p5'),
+    demais: document.getElementById('pontual-demais').value.trim(),
+  };
+  const pontualPreenchido = pontualDados.p1 || pontualDados.p2 || pontualDados.p3 || pontualDados.p4 || pontualDados.p5 || pontualDados.demais;
+
+  if (pontualVal && (!proposta || !opPontualNome || !pontualPreenchido)) {
+    showAlert('error','Preencha Nº da Proposta, Operadora e ao menos uma divisão do acordo pontual.');
+    document.getElementById('pontual-fields').scrollIntoView({ behavior:'smooth', block:'center' });
+    return;
+  }
+
   const opsFilled = coletarOps().filter(op => op.p1||op.p2||op.p3||op.p4||op.p5||op.demais);
   const tableEl   = document.getElementById('table-scroll');
-  if (opsFilled.length === 0) {
+  if (opsFilled.length === 0 && !pontualVal) {
     showAlert('error','Preencha as comissões de pelo menos uma operadora antes de enviar.');
     tableEl.classList.add('error');
     tableEl.scrollIntoView({ behavior:'smooth', block:'center' });
@@ -486,9 +571,16 @@ async function enviarAcordo() {
   const naoReterVal = naoReterEl ? naoReterEl.checked : false;
   const obsVal      = document.getElementById('obs').value.trim();
   const retencaoTexto = naoReterVal ? 'SEM RETENÇÃO' : '—';
+  const pontualTexto  = pontualVal ? 'SIM — Proposta ' + proposta : 'NÃO';
+
+  // Quando é acordo pontual, envia só a operadora/divisão da proposta;
+  // ignora o restante da tabela geral de operadoras.
+  const linhas = pontualVal
+    ? [{ nome: opPontualNome, ...pontualDados }]
+    : opsFilled;
 
   let linhasHTML = '';
-  opsFilled.forEach((op, i) => {
+  linhas.forEach((op, i) => {
     const bg = i % 2 === 0 ? '#ffffff' : '#fdf8fc';
     linhasHTML += '<tr style="background:' + bg + '">'
       + '<td style="padding:8px 10px;border:1px solid #e0e0e0;color:#2D1228;font-size:12px;">' + op.nome + '</td>'
@@ -520,6 +612,7 @@ async function enviarAcordo() {
     nome_corretor: nomeCorretor,
     data_inicio:   dataInicio,
     retencao:      retencaoTexto,
+    acordo_pontual: pontualTexto,
     tabela_ops:    tabelaHTML,
     obs_text:      obsVal || '—',
   };
@@ -532,9 +625,10 @@ async function enviarAcordo() {
   espelho += 'Código: ' + codigo + '\n';
   espelho += 'Corretor: ' + nomeCorretor + '\n';
   espelho += 'Início: ' + dataInicio + '\n';
-  espelho += 'Retenção: ' + retencaoTexto + '\n\n';
-  espelho += 'OPERADORAS:\n';
-  opsFilled.forEach(op => {
+  espelho += 'Retenção: ' + retencaoTexto + '\n';
+  espelho += 'Acordo pontual: ' + pontualTexto + '\n\n';
+  espelho += (pontualVal ? 'OPERADORA (PROPOSTA ' + proposta + '):\n' : 'OPERADORAS:\n');
+  linhas.forEach(op => {
     espelho += op.nome + ' | Total: ' + (op.total||'—') + ' | 1ª: ' + (op.p1||'—') + ' | 2ª: ' + (op.p2||'—') + ' | 3ª: ' + (op.p3||'—') + ' | 4ª: ' + (op.p4||'—') + ' | 5ª: ' + (op.p5||'—') + ' | Demais: ' + (op.demais||'—') + '\n';
   });
   if (obsVal) espelho += '\nObservações: ' + obsVal;
@@ -545,14 +639,15 @@ async function enviarAcordo() {
   setBtnLoading(true);
 
   try {
+    const sufixoAssunto = pontualVal ? ' (PONTUAL)' : '';
     await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ACORDOS, {
       to_email: DESTINO_ACORDOS,
-      subject: 'Novo Acordo — COD. ' + codigo + ' — ' + nomeCorretor,
+      subject: 'Novo Acordo' + sufixoAssunto + ' — COD. ' + codigo + ' — ' + nomeCorretor,
       ...emailParams,
     });
     await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_CONFIRM, {
       to_email: supervisorEmail,
-      subject:  'Acordo Enviado — COD. ' + codigo + ' — ' + nomeCorretor,
+      subject:  'Acordo Enviado' + sufixoAssunto + ' — COD. ' + codigo + ' — ' + nomeCorretor,
       ...emailParams,
     });
     showAlert('success');
