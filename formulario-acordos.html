@@ -245,6 +245,16 @@
           <input type="email" id="supervisor-email" placeholder="supervisor@affinitycorretora.com.br">
         </div>
       </div>
+      <div class="field-row">
+        <div class="field">
+          <div class="field-label">Nome do Gerente *</div>
+          <input type="text" id="gerente" placeholder="Nome completo">
+        </div>
+        <div class="field">
+          <div class="field-label">E-mail do Gerente *</div>
+          <input type="email" id="gerente-email" placeholder="gerente@affinitycorretora.com.br">
+        </div>
+      </div>
     </div>
   </div>
 
@@ -528,11 +538,13 @@ function setBtnLoading(loading) {
 async function enviarAcordo() {
   const supervisor      = document.getElementById('supervisor').value.trim();
   const supervisorEmail = document.getElementById('supervisor-email').value.trim();
+  const gerente         = document.getElementById('gerente').value.trim();
+  const gerenteEmail    = document.getElementById('gerente-email').value.trim();
   const codigo          = document.getElementById('codigo').value.trim();
   const nomeCorretor    = document.getElementById('nome-corretor').value.trim();
   const dataInicio      = document.getElementById('data-inicio').value;
 
-  if (!supervisor || !supervisorEmail || !codigo || !nomeCorretor) {
+  if (!supervisor || !supervisorEmail || !gerente || !gerenteEmail || !codigo || !nomeCorretor) {
     showAlert('error','Preencha todos os campos obrigatórios (*).');
     return;
   }
@@ -609,6 +621,7 @@ async function enviarAcordo() {
 
   const emailParams = {
     supervisor, codigo,
+    gerente,
     nome_corretor: nomeCorretor,
     data_inicio:   dataInicio,
     retencao:      retencaoTexto,
@@ -622,6 +635,7 @@ async function enviarAcordo() {
   espelho += 'ACORDO COMERCIAL — AFFINITY\n';
   espelho += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
   espelho += 'Supervisor: ' + supervisor + '\n';
+  espelho += 'Gerente: ' + gerente + '\n';
   espelho += 'Código: ' + codigo + '\n';
   espelho += 'Corretor: ' + nomeCorretor + '\n';
   espelho += 'Início: ' + dataInicio + '\n';
@@ -647,6 +661,11 @@ async function enviarAcordo() {
     });
     await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_CONFIRM, {
       to_email: supervisorEmail,
+      subject:  'Acordo Enviado' + sufixoAssunto + ' — COD. ' + codigo + ' — ' + nomeCorretor,
+      ...emailParams,
+    });
+    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_CONFIRM, {
+      to_email: gerenteEmail,
       subject:  'Acordo Enviado' + sufixoAssunto + ' — COD. ' + codigo + ' — ' + nomeCorretor,
       ...emailParams,
     });
